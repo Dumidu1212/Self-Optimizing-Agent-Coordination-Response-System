@@ -4,7 +4,7 @@
   "description": "The Coordinator Core is an agentic middleware service that discovers, validates, and exposes callable capabilities (“tools”) and provides the foundation for capability‑based routing, policy‑driven selection, and execution tracing across the Self‑Optimizing Agent Coordination & Response System.",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development ts-node src/server.ts | pino-pretty",
+    "dev": "cross-env NODE_ENV=development tsx src/server.ts | pino-pretty",
     "start": "node dist/server.js",
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "lint": "eslint .",
@@ -43,6 +43,7 @@
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   }
 }

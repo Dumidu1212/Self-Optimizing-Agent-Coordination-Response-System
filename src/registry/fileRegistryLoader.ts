@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import chokidar, { type FSWatcher } from 'chokidar';
 import yaml from 'yaml';
-import { validator, type ToolRegistry } from './validator.js';
+import { validator, type ToolRegistry } from './validator';
 
 export interface IRegistryLoader { getRegistry(): ToolRegistry; start(): Promise<void>; stop(): Promise<void>; }
 
