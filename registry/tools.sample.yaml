@@ -1,0 +1,22 @@
+updatedAt: "2025-09-30T10:00:00.000Z"
+tools:
+  - id: "http-search-patient"
+    name: "Patient Search API"
+    version: "1.0.0"
+    description: "Search patients by MRN or name"
+    capabilities:
+      - name: "patient.search"
+        inputs: { mrn: "string", name: "string" }
+        outputs: { patientId: "string", demographic: "object" }
+    cost_estimate: 0.01
+    sla: { p95_ms: 1500, success_rate_min: 0.98 }
+    preconditions: { requiresNetwork: true, env: { HIS_API_KEY: "string" } }
+    endpoint: { type: "http", url: "https://legacy-his/api/patient/search", timeout_ms: 3000 }
+  - id: "rpa-visit-open"
+    name: "Open Visit (RPA)"
+    version: "0.3.2"
+    capabilities:
+      - name: "visit.open"
+        inputs: { patientId: "string" }
+        outputs: { visitId: "string" }
+    endpoint: { type: "rpa", script: "open_visit.robot", timeout_ms: 20000 }
