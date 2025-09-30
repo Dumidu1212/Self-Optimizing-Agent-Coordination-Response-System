@@ -3,7 +3,7 @@ import 'dotenv/config';
 export type AppConfig = {
   port: number;
   registryDir: string;
-  otlpEndpoint?: string; // optional: present only when defined
+  otlpEndpoint?: string;
 };
 
 export function loadConfig(): AppConfig {
@@ -11,7 +11,6 @@ export function loadConfig(): AppConfig {
   const registryDir = process.env.REGISTRY_DIR ?? './registry';
   const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
 
-  // Omit the property when it's undefined (required by exactOptionalPropertyTypes)
   return {
     port,
     registryDir,

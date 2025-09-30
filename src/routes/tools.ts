@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { validator } from '../registry/validator.js';
-import type { IRegistryService } from '../registry/service.js';
+import { validator } from '../registry/validator';
+import type { IRegistryService } from '../registry/service';
 
 export async function toolsRoutes(app: FastifyInstance, deps: { registry: IRegistryService }) {
   app.post('/tools/validate', {

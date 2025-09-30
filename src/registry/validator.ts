@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { registrySchema, toolSchema, type ToolRegistry, type Tool } from './model.js';
+import { registrySchema, toolSchema, type ToolRegistry, type Tool } from './model';
 
 class Validator {
   private ajv = new Ajv({ allErrors: true, strict: true });

@@ -1,5 +1,5 @@
-import type { IRegistryLoader } from './fileRegistryLoader.js';
-import type { Tool, ToolRegistry } from './validator.js';
+import type { IRegistryLoader } from './fileRegistryLoader';
+import type { Tool, ToolRegistry } from './validator';
 
 export interface IRegistryService { list(): Tool[]; getRegistry(): ToolRegistry; }
 

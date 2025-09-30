@@ -1,9 +1,9 @@
 import Fastify from 'fastify';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
-import { toolSchema, registrySchema } from './registry/model.js';
-import { toolsRoutes } from './routes/tools.js';
-import { metricsRoutes } from './metrics/metrics.js';
+import { toolSchema, registrySchema } from './registry/model';
+import { toolsRoutes } from './routes/tools';
+import { metricsRoutes } from './metrics/metrics';
 
 export function buildApp(deps: any) {
   const app = Fastify({ logger: true });

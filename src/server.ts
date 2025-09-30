@@ -1,8 +1,8 @@
-import { buildApp } from './app.js';
-import { loadConfig } from './config/env.js';
-import { FileRegistryLoader } from './registry/fileRegistryLoader.js';
-import { RegistryService } from './registry/service.js';
-import { toolsLoaded, toolLoadErrors } from './metrics/metrics.js';
+import { buildApp } from './app';
+import { loadConfig } from './config/env';
+import { FileRegistryLoader } from './registry/fileRegistryLoader';
+import { RegistryService } from './registry/service';
+import { toolsLoaded, toolLoadErrors } from './metrics/metrics';
 
 async function main() {
   const cfg = loadConfig();
