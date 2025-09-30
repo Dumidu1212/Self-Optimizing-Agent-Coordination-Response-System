@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { FileRegistryLoader } from '../../src/registry/fileRegistryLoader';
 
-const td = () => mkdtempSync(join(tmpdir(), 'reg-'));
+const td = (): string => mkdtempSync(join(tmpdir(), 'reg-'));
 
 describe('FileRegistryLoader', () => {
   it('aggregates tools from yaml/json', async () => {
