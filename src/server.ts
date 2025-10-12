@@ -3,6 +3,10 @@ import { loadConfig } from './config/env';
 import { FileRegistryLoader } from './registry/fileRegistryLoader';
 import { RegistryService } from './registry/service';
 import { toolsLoaded, toolLoadErrors } from './metrics/metrics';
+import { SimpleScorer } from './planner/scoring.simple';
+import { Planner } from './planner/planner';
+import { HttpExecutor } from './executors/httpExecutor';
+import { TraceStore } from './tracing/traceStore';
 
 async function main(): Promise<void> {
   const cfg = loadConfig();
@@ -18,8 +22,12 @@ async function main(): Promise<void> {
   }
 
   const registry = new RegistryService(loader);
-  const app = buildApp({ registry });
+  const scorer = new SimpleScorer();
+  const executor = new HttpExecutor();
+  const traces = new TraceStore();
+  const planner = new Planner(registry, scorer, executor, traces);
 
+  const app = buildApp({ registry, planner });
   await app.listen({ port: cfg.port, host: '0.0.0.0' });
 }
 
