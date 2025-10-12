@@ -1,5 +1,73 @@
-node_modules
-dist
+# ========= Node / Package Managers =========
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+# (Keep package-lock.json if you want reproducible installs. Remove this line then.)
+
+# ========= Build Artifacts =========
+dist/
+coverage/
+.build/
+.tmp/
+.cache/
+.esbuild/
+tsconfig.tsbuildinfo
+
+# ========= TypeScript / Testing =========
+*.tsbuildinfo
+.jest-cache/
+.jest/
+.vitest/
+*.tap
+.tap/
+
+# ========= Env & Secrets =========
 .env
+.env.*
+!.env.example
+
+# ========= Logs =========
+logs/
+*.log
+*.log.*
+*.out
+*.err
+pino*.log
+
+# ========= Editors / OS =========
 .DS_Store
-coverage
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# ========= Tooling / Lint / Formatting =========
+.prettier-cache
+eslintcache
+/.eslintcache
+
+# ========= Runtime / Local Dev =========
+*.pid
+*.pid.lock
+*.seed
+*.swp
+*.swo
+
+# ========= Docker / Containers =========
+docker-compose.override.yml
+.docker/
+*.local.yml
+
+# ========= Swagger / OpenAPI generated (if you export later) =========
+openapi.json
+openapi.yaml
+
+# ========= Registry: keep source YAML/JSON, ignore derived artifacts =========
+registry/**/*.generated.*
+registry/**/*.cache.*
