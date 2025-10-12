@@ -20,11 +20,18 @@ const t2: Tool = {
 };
 
 class FailingExec implements IToolExecutor {
-  // fail once, then succeed
+  // fail once (non-timeout), then succeed
   private count = 0;
-  async execute(): Promise<ExecutionResult> {
+  async execute(
+    _tool: Tool,
+    _input: Record<string, unknown>,
+    _abort: AbortSignal
+  ): Promise<ExecutionResult> {
     this.count++;
-    if (this.count === 1) return { status: 'timeout', error: 'timeout' };
+    if (this.count === 1) {
+      // Non-timeout failure → triggers fallback to next candidate
+      return { status: 'failure', error: 'HTTP_500' };
+    }
     return { status: 'success', latency_ms: 12, output: { ok: true } };
   }
 }
