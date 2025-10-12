@@ -80,8 +80,11 @@ export class Planner implements IPlanner {
 
     // Execution with fallback
     const overallController = new AbortController();
+    let overallTimeout: ReturnType<typeof setTimeout> | undefined;
     if (ctx.timeout_ms && ctx.timeout_ms > 0) {
-      setTimeout(() => overallController.abort('overall-timeout'), ctx.timeout_ms);
+      overallTimeout = setTimeout((): void => overallController.abort('overall-timeout'), ctx.timeout_ms);
+      // Prevent the timer from keeping the event loop alive (important for tests)
+      if (typeof overallTimeout.unref === 'function') overallTimeout.unref();
     }
 
     let rank = 0;
@@ -94,6 +97,7 @@ export class Planner implements IPlanner {
       const execRes = await this.httpExecutor.execute(tool, input, overallController.signal);
 
       if (execRes.status === 'success') {
+        if (overallTimeout) clearTimeout(overallTimeout);
         plannerSelectionTotal.labels({ capability, tool: tool.id }).inc();
         result.selected = { toolId: tool.id };
         result.execution = execRes;
@@ -101,14 +105,26 @@ export class Planner implements IPlanner {
         return result;
       }
 
+      // If the executor reports a timeout, surface it deterministically.
+      if (execRes.status === 'timeout') {
+        if (overallTimeout) clearTimeout(overallTimeout);
+        result.execution = execRes;
+        this.traces.record(traceId, 'timeout', { toolId: tool.id, reason: execRes.error });
+        return result;
+      }
+
       // Failed → record + try next candidate
       plannerFallbacksTotal.labels({ capability }).inc();
       this.traces.record(traceId, 'fallback', { toolId: tool.id, error: execRes.error, status: execRes.status });
       // If overall deadline elapsed, break early
-      if (overallController.signal.aborted) break;
+    if (overallController.signal.aborted) {
+      if (overallTimeout) clearTimeout(overallTimeout);
+      break;
     }
+   }
 
     // No candidate succeeded
+    if (overallTimeout) clearTimeout(overallTimeout);
     result.execution = { status: 'failure', error: 'ALL_CANDIDATES_FAILED' };
     this.traces.record(traceId, 'failure', result.execution);
     return result;

@@ -1,6 +1,18 @@
 import { buildApp } from '../../src/app';
 import type { IRegistryService } from '../../src/registry/service';
+import type { IPlanner, PlanContext, PlanResult } from '../../src/planner/contracts';
 import request from 'supertest';
+
+
+class PlannerStub implements IPlanner {
+  async plan(_ctx: PlanContext): Promise<PlanResult> {
+    return {
+      traceId: 'tr_test',
+      capability: _ctx.capability ?? '',
+      candidates: []
+    };
+  }
+}
 
 const fake: IRegistryService = {
   list: () => [
@@ -13,8 +25,9 @@ describe('tools routes', () => {
   let app: ReturnType<typeof buildApp>;
 
   beforeAll(async () => {
-    app = buildApp({ registry: fake });
-    await app.ready();                 // ← ensure routes/plugins are initialized
+    const planner = new PlannerStub();
+    app = buildApp({ registry: fake, planner });
+    await app.ready();                // ← ensure routes/plugins are initialized
   });
 
   afterAll(async () => {

@@ -6,6 +6,7 @@ import { Planner } from '../../src/planner/planner';
 import { SimpleScorer } from '../../src/planner/scoring.simple';
 import type { IToolExecutor, ExecutionResult } from '../../src/planner/contracts';
 import { TraceStore } from '../../src/tracing/traceStore';
+import type { JsonRecord } from '../../src/planner/contracts';
 
 const tFast: Tool = {
   id: 'fast', name: 'Fast', version: '1.0.0',
@@ -21,12 +22,16 @@ const tSlow: Tool = {
 };
 
 class StubExec implements IToolExecutor {
-  async execute(tool: Tool): Promise<ExecutionResult> {
-    // Pretend both succeed; latencies differ by name
-    const latency = tool.id === 'fast' ? 10 : 50;
-    return { status: 'success', latency_ms: latency, output: { id: tool.id } };
-  }
-}
+  async execute(
+    tool: Tool,
+    _input: JsonRecord,
+    _overallAbort: AbortSignal
+  ): Promise<ExecutionResult> {
+     // Pretend both succeed; latencies differ by name
+     const latency = tool.id === 'fast' ? 10 : 50;
+     return { status: 'success', latency_ms: latency, output: { id: tool.id } };
+   }
+ }
 
 describe('/plan e2e', () => {
   let app: ReturnType<typeof buildApp>;
