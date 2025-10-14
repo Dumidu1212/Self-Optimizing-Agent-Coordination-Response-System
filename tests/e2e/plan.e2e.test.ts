@@ -35,14 +35,16 @@ class StubExec implements IToolExecutor {
 
 describe('/plan e2e', () => {
   let app: ReturnType<typeof buildApp>;
+  let traces: TraceStore;
 
   beforeAll(async () => {
+    traces = new TraceStore();
     const registry: IRegistryService = {
       list: () => [tFast, tSlow],
       getRegistry: () => ({ tools: [tFast, tSlow], updatedAt: new Date().toISOString() })
     };
     const planner = new Planner(registry, new SimpleScorer(), new StubExec(), new TraceStore());
-    app = buildApp({ registry, planner });
+    app = buildApp({ registry, planner, traces });
     await app.ready();
   });
 

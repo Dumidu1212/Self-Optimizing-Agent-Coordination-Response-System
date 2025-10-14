@@ -1,3 +1,5 @@
+import { traceCreatedTotal, traceEventsTotal } from '../metrics/metrics';
+
 /**
  * Trace store with TTL and max-size bound.
  * Keeps decision/execution events per plan for explainability (S003).
@@ -38,6 +40,7 @@ export class TraceStore {
     const t: Trace = { id, createdAt: Date.now(), events: [] };
     this.traces.set(id, t);
     this.order.push(id);
+    traceCreatedTotal.inc();
     this.prune();
     return id;
   }
@@ -46,6 +49,7 @@ export class TraceStore {
     const t = this.traces.get(id);
     if (!t) return;
     t.events.push({ ts: Date.now(), type, data });
+    traceEventsTotal.inc();
   }
 
   get(id: string): Trace | undefined {
@@ -72,8 +76,8 @@ export class TraceStore {
     }
     // Capacity prune (remove oldest)
     while (this.order.length > this.maxTraces) {
-      const oldest = this.order.shift();
-      if (oldest) this.traces.delete(oldest);
+      const oldest = this.order[0];
+      if (oldest) this.delete(oldest);
     }
   }
 
