@@ -1,3 +1,4 @@
+import { TraceStore } from '../../src/tracing/traceStore';
 import { buildApp } from '../../src/app';
 import type { IRegistryService } from '../../src/registry/service';
 import type { IPlanner, PlanContext, PlanResult } from '../../src/planner/contracts';
@@ -23,10 +24,12 @@ const fake: IRegistryService = {
 
 describe('tools routes', () => {
   let app: ReturnType<typeof buildApp>;
+  let traces: TraceStore;
 
   beforeAll(async () => {
+    traces = new TraceStore();
     const planner = new PlannerStub();
-    app = buildApp({ registry: fake, planner });
+    app = buildApp({ registry: fake, planner, traces });
     await app.ready();                // ← ensure routes/plugins are initialized
   });
 
