@@ -5,24 +5,25 @@ import { toolSchema, registrySchema } from './registry/model';
 import { toolsRoutes } from './routes/tools';
 import { metricsRoutes } from './metrics/metrics';
 import { planRoutes } from './routes/plan';
+import { traceRoutes } from './routes/trace';
 import type { IRegistryService } from './registry/service';
 import type { IPlanner } from './planner/contracts';
+import type { TraceStore } from './tracing/traceStore';
 
-/**
- * Build the Fastify application with schemas, routes, and Swagger UI.
- */
-export function buildApp(deps: { registry: IRegistryService; planner: IPlanner }): FastifyInstance {
+/** Build the Fastify application with schemas, routes, and Swagger UI. */
+export function buildApp(deps: { registry: IRegistryService; planner: IPlanner; traces: TraceStore }): FastifyInstance {
   const app = Fastify({ logger: true });
 
   app.addSchema({ $id: 'Tool', ...toolSchema });
   app.addSchema({ $id: 'ToolRegistry', ...registrySchema });
 
-  app.register(swagger, { openapi: { info: { title: 'Agentic Orchestrator', version: '0.2.0' } } });
+  app.register(swagger, { openapi: { info: { title: 'Agentic Orchestrator', version: '0.3.0' } } });
   app.register(swaggerUI, { routePrefix: '/docs' });
 
   app.register(async (instance) => {
     await toolsRoutes(instance, { registry: deps.registry });
     await planRoutes(instance, { planner: deps.planner });
+    await traceRoutes(instance, { traces: deps.traces });
     await metricsRoutes(instance);
   });
 

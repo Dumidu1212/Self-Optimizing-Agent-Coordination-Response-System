@@ -24,10 +24,10 @@ async function main(): Promise<void> {
   const registry = new RegistryService(loader);
   const scorer = new SimpleScorer();
   const executor = new HttpExecutor();
-  const traces = new TraceStore();
+  const traces = new TraceStore({ maxTraces: 2000, ttlMs: 15 * 60_000 }); // 15 minutes TTL
   const planner = new Planner(registry, scorer, executor, traces);
 
-  const app = buildApp({ registry, planner });
+  const app = buildApp({ registry, planner, traces });
   await app.listen({ port: cfg.port, host: '0.0.0.0' });
 }
 
