@@ -39,12 +39,24 @@ export const plannerExecutionLatencyMs = new client.Histogram({
   labelNames: ['tool'] as const
 });
 
+/** Tracing metrics */
+export const traceCreatedTotal = new client.Counter({
+  name: 'trace_created_total',
+  help: 'Number of traces created'
+});
+export const traceEventsTotal = new client.Counter({
+  name: 'trace_events_total',
+  help: 'Number of trace events recorded'
+});
+
 register.registerMetric(toolsLoaded);
 register.registerMetric(toolLoadErrors);
 register.registerMetric(plannerBidsTotal);
 register.registerMetric(plannerSelectionTotal);
 register.registerMetric(plannerFallbacksTotal);
 register.registerMetric(plannerExecutionLatencyMs);
+register.registerMetric(traceCreatedTotal);
+register.registerMetric(traceEventsTotal);
 
 /**
  * Register the Prometheus /metrics endpoint.
