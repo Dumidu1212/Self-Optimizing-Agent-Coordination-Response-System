@@ -29,7 +29,6 @@ import {
   plannerFallbacksTotal,
   plannerExecutionLatencyMs,
   traceCreatedTotal,
-  traceEventsTotal,
 } from '../metrics/metrics';
 import { TraceStore } from '../tracing/traceStore';
 
@@ -210,6 +209,5 @@ export class Planner implements IPlanner {
   /** Record a trace event and increment the trace event counter. */
   private rec(traceId: string, type: string, data: unknown): void {
     this.traces.record(traceId, type, data);
-    traceEventsTotal.inc();
   }
 }
