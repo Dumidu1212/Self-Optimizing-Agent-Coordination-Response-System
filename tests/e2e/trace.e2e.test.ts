@@ -6,6 +6,7 @@ import { Planner } from '../../src/planner/planner';
 import { SimpleScorer } from '../../src/planner/scoring.simple';
 import type { IToolExecutor, ExecutionResult, JsonRecord } from '../../src/planner/contracts';
 import { TraceStore } from '../../src/tracing/traceStore';
+import type { IPolicyService } from '../../src/policy/model';
 
 const tool: Tool = {
   id: 'demo', name: 'Demo', version: '1.0.0',
@@ -21,6 +22,11 @@ class StubExec implements IToolExecutor {
   }
 }
 
+const allowAllPolicy: IPolicyService = {
+  preCheck() { return { allow: true }; },
+  postCheck() { return { pass: true }; },
+};
+
 describe('/trace/:id e2e', () => {
   let app: ReturnType<typeof buildApp>;
   let traces: TraceStore;
@@ -32,7 +38,7 @@ describe('/trace/:id e2e', () => {
       getRegistry: () => ({ tools: [tool], updatedAt: new Date().toISOString() })
     };
     const planner = new Planner(registry, new SimpleScorer(), new StubExec(), traces);
-    app = buildApp({ registry, planner, traces });
+    app = buildApp({ registry, planner, traces, policy: allowAllPolicy });
     await app.ready();
   });
 

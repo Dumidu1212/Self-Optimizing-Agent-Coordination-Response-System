@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soacrs/policy.schema.json",
+  "type": "object",
+  "required": ["schemaVersion"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "tenants": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/tenantPolicy" }
+    },
+    "default": { "$ref": "#/$defs/tenantPolicy" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "tenantPolicy": {
+      "type": "object",
+      "properties": {
+        "allowCapabilities": { "type": "array", "items": { "type": "string" } },
+        "denyCapabilities":  { "type": "array", "items": { "type": "string" } },
+        "timeWindows": {
+          "type": "object",
+          "properties": {
+            "tz": { "type": "string" },
+            "allow": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "preSchemas":  { "type": "object", "additionalProperties": { "type": "object" } },
+        "postSchemas": { "type": "object", "additionalProperties": { "type": "object" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

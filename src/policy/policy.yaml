@@ -1,0 +1,12 @@
+schemaVersion: "1.0"
+default:
+  allowCapabilities: []    # empty = allow all (tighten per tenant/capability as needed)
+  denyCapabilities: []
+  timeWindows:
+    tz: "Asia/Colombo"
+    allow:
+      - "Mon-Fri 00:00-23:59"
+      - "Sat 00:00-23:59"
+      - "Sun 00:00-23:59"
+  preSchemas: {}
+  postSchemas: {}
