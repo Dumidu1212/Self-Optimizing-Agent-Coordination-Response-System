@@ -8,16 +8,28 @@ export type JsonRecord = Record<string, unknown>;
 
 /** Request context for planning. */
 export interface PlanContext {
+  /**
+   * Optional tenant identifier.
+   * Used for multi-tenant routing or tenant-aware scoring/selection.
+   * Example: "hospital-a", "customer-1234".
+   */
+  tenant?: string;
+
   /** If known, the capability name (e.g., "patient.search"). */
   capability?: string;
+
   /** Optional free text; reserved for future intent mapping. */
   text?: string;
+
   /** Structured input to pass to the selected tool. */
   input?: JsonRecord;
-  /** Optional tenant/user/request metadata. */
+
+  /** Optional tenant/user/request metadata envelope. */
   context?: JsonRecord;
+
   /** Optional overall timeout for plan+exec (ms). */
   timeout_ms?: number;
+
   /** If true (default), execute the plan; otherwise return decision only. */
   execute?: boolean;
 }
@@ -47,7 +59,10 @@ export interface PlanResult {
 
 /** Strategy that assigns a scalar score to a tool given a context. */
 export interface IScorer {
-  score(tool: Tool, ctx: Required<Pick<PlanContext, 'capability' | 'input'>>): number;
+  score(
+    tool: Tool,
+    ctx: Required<Pick<PlanContext, 'capability' | 'input'>>,
+  ): number;
 }
 
 /** Executes a tool with the given input and deadlines. */
@@ -55,7 +70,7 @@ export interface IToolExecutor {
   execute(
     tool: Tool,
     input: JsonRecord,
-    overallAbort: AbortSignal
+    overallAbort: AbortSignal,
   ): Promise<ExecutionResult>;
 }
 

@@ -49,6 +49,25 @@ export const traceEventsTotal = new client.Counter({
   help: 'Number of trace events recorded'
 });
 
+/** Policy metrics */
+export const policyPreDeniedTotal = new client.Counter({
+  name: 'policy_pre_denied_total',
+  help: 'Number of requests denied by pre-conditions',
+  labelNames: ['tenant', 'capability'] as const
+});
+
+export const policyPostFailedTotal = new client.Counter({
+  name: 'policy_post_failed_total',
+  help: 'Number of post-condition failures after tool success',
+  labelNames: ['capability', 'tool'] as const
+});
+
+export const policyPostPassedTotal = new client.Counter({
+  name: 'policy_post_passed_total',
+  help: 'Number of post-condition passes after tool success',
+  labelNames: ['capability', 'tool'] as const
+});
+
 register.registerMetric(toolsLoaded);
 register.registerMetric(toolLoadErrors);
 register.registerMetric(plannerBidsTotal);
@@ -57,6 +76,9 @@ register.registerMetric(plannerFallbacksTotal);
 register.registerMetric(plannerExecutionLatencyMs);
 register.registerMetric(traceCreatedTotal);
 register.registerMetric(traceEventsTotal);
+register.registerMetric(policyPreDeniedTotal);
+register.registerMetric(policyPostFailedTotal);
+register.registerMetric(policyPostPassedTotal);
 
 /**
  * Register the Prometheus /metrics endpoint.

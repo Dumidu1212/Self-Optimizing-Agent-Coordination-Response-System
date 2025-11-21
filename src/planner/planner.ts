@@ -28,9 +28,9 @@ import {
   plannerSelectionTotal,
   plannerFallbacksTotal,
   plannerExecutionLatencyMs,
-  traceCreatedTotal,
 } from '../metrics/metrics';
 import { TraceStore } from '../tracing/traceStore';
+import type { IPolicyService } from '../policy/model';
 
 /** Capability gate: true if tool declares the required capability. */
 function supportsCapability(t: Tool, capability: string): boolean {
@@ -54,7 +54,8 @@ export class Planner implements IPlanner {
     private readonly registry: IRegistryService,
     private readonly scorer: IScorer,
     private readonly httpExecutor: IToolExecutor,
-    private readonly traces: TraceStore
+    private readonly traces: TraceStore,
+    private readonly policy?: IPolicyService  
   ) {}
 
   /**
@@ -70,7 +71,6 @@ export class Planner implements IPlanner {
 
     // Create trace immediately (even on early returns) so clients can fetch explainability.
     const traceId = this.traces.create();
-    traceCreatedTotal.inc();
     this.rec(traceId, 'request', ctx);
 
     const capability = ctx.capability ?? '';
@@ -157,6 +157,27 @@ export class Planner implements IPlanner {
 
       // 3a) Success → record, observe latency, return
       if (execRes.status === 'success') {
+
+        // ---------- POST POLICY CHECK & FALLBACK ----------
+        if (this.policy) {
+          const post = this.policy.postCheck({
+            capability,
+            // tenant is optional in the policy interface; ctx may not have it
+            output: execRes.output
+          });
+          if (!post.pass) {
+            // record and try next candidate
+            this.traces.record(traceId, 'post_denied', {
+              toolId: tool.id,
+              code: post.code,
+              detail: post.detail
+            });
+            plannerFallbacksTotal.labels({ capability }).inc();
+            continue; // <-- fallback to next scored tool
+          }
+        }
+        // ---------- END POST POLICY CHECK ----------
+
         if (overallTimeout) clearTimeout(overallTimeout);
         plannerSelectionTotal.labels({ capability, tool: tool.id }).inc();
         if (typeof execRes.latency_ms === 'number') {
@@ -206,7 +227,7 @@ export class Planner implements IPlanner {
     return result;
   }
 
-  /** Record a trace event and increment the trace event counter. */
+  /** Record a trace event (TraceStore increments metrics internally). */
   private rec(traceId: string, type: string, data: unknown): void {
     this.traces.record(traceId, type, data);
   }

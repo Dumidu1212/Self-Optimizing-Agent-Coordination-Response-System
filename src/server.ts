@@ -1,3 +1,4 @@
+// src/server.ts
 import { buildApp } from './app';
 import { loadConfig } from './config/env';
 import { FileRegistryLoader } from './registry/fileRegistryLoader';
@@ -8,10 +9,15 @@ import { Planner } from './planner/planner';
 import { HttpExecutor } from './executors/httpExecutor';
 import { TraceStore } from './tracing/traceStore';
 
+// Policy & guardrails (used by /plan route for pre-checks)
+import { FilePolicyLoader } from './policy/loader.file';
+import { PolicyService } from './policy/service';
+
 async function main(): Promise<void> {
   const cfg = loadConfig();
-  const loader = new FileRegistryLoader(cfg.registryDir);
 
+  // --- Registry bootstrap ---
+  const loader = new FileRegistryLoader(cfg.registryDir);
   try {
     await loader.start();
     toolsLoaded.set(loader.getRegistry().tools.length);
@@ -21,13 +27,22 @@ async function main(): Promise<void> {
     console.error('Failed to start registry loader', e);
   }
 
+  // --- Core singletons ---
   const registry = new RegistryService(loader);
   const scorer = new SimpleScorer();
   const executor = new HttpExecutor();
-  const traces = new TraceStore({ maxTraces: 2000, ttlMs: 15 * 60_000 }); // 15 minutes TTL
+  const traces = new TraceStore({ maxTraces: 2000, ttlMs: 15 * 60_000 }); // 15 minutes
+
+  // --- Policy & Guardrails (used by routes, not by Planner) ---
+  const policyDoc = await new FilePolicyLoader(cfg.policyPath).load();
+  const policy = new PolicyService(policyDoc);
+
+  // Keep Planner signature as-is: (registry, scorer, executor, traces)
   const planner = new Planner(registry, scorer, executor, traces);
 
-  const app = buildApp({ registry, planner, traces });
+  // App composition: pass policy to routes (for pre-checks), not to Planner
+  const app = buildApp({ registry, planner, traces, policy });
+
   await app.listen({ port: cfg.port, host: '0.0.0.0' });
 }
 
